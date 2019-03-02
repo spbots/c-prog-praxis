@@ -51,15 +51,14 @@ struct sum_numbers {
     int sum_start;
     int consecutive_numbers;
 };
-typedef struct sum_numbers SumNumbers;
+typedef struct sum_numbers sum_numbers_t;
 
-struct sum_numbers_array {
-    SumNumbers* a;
-    int size;
-};
-typedef struct sum_numbers_array SumNumbersArray;
+// hidden impl:
+struct consec_sum_generator;
 
-SumNumbersArray consecutive_sums(const int n);
+struct consec_sum_generator create_sum_generator(const int n);
+sum_numbers_t get_next(struct consec_sum_generator* g);
+
 void consecutive_sums_test();
 
 #endif

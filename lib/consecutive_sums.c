@@ -1,79 +1,68 @@
 #include "consecutive_sums.h"
 
 #include <assert.h>
-#include <stddef.h>
-#include <stdlib.h>
 
-SumNumbersArray consecutive_sums(const int n)
-{
-    const int k_max = n/2 + 1;
+struct consec_sum_generator {
+    const int n;
+    const int k_max;
+    int k;
+};
+typedef struct consec_sum_generator generator_t;
 
-    // todo: what is the actual upper limit needed for alloc?
-    SumNumbers* arr = calloc(k_max, sizeof(SumNumbers));
-    int size = 0;
+generator_t create_sum_generator(const int n) {
+    return (generator_t){ n, n/2 + 1, 2 };
+}
 
-    for (int k = 2; k <= k_max; ++k) {
-        const int n_div_k = n / k;
-        const int n_mod_k = n % k;
+sum_numbers_t get_next(generator_t* g) {
+    assert(g);
+    int k = 0;
+    int sum_start = 0;
+
+    for (; g->k <= g->k_max && sum_start == 0; g->k++) {
+        k = g->k;
+        const int n_div_k = g->n / k;
+        const int n_mod_k = g->n % k;
         const int k_div_2 = k / 2;
         const int is_even = k % 2 == 0;
 
         if (is_even && (k/2 == n_mod_k)) {
-            const int sum_start = n_div_k - k_div_2 + 1;
-            if (sum_start <= 0) break;
-
-            arr[size++] = (SumNumbers){
-                .sum_start = sum_start,
-                .consecutive_numbers = k
-            };
+            sum_start = n_div_k - k_div_2 + 1;
         } else if (!is_even && (n_mod_k == 0)) {
-            const int sum_start = n_div_k - k_div_2;
-            if (sum_start <= 0) break;
-
-            arr[size++] = (SumNumbers){
-                .sum_start = sum_start,
-                .consecutive_numbers = k
-            };
+            sum_start = n_div_k - k_div_2;
         }
     }
 
-    return (SumNumbersArray){
-        .a = arr,
-        .size = size
-    };
+    const int is_valid = sum_start > 0;
+    return (sum_numbers_t) {
+        .sum_start = is_valid ? sum_start : 0,
+        .consecutive_numbers =  is_valid ? k : 0 };
 }
 
-
-static int is_eq(const SumNumbers in, const int start, const int num) {
+static int is_eq(const sum_numbers_t in, const int start, const int num) {
     return in.sum_start == start && in.consecutive_numbers == num;
 }
 void consecutive_sums_test() {
     {
-        SumNumbersArray out = consecutive_sums(0);
-        assert(out.size == 0);
-        free(out.a);
+        generator_t g = create_sum_generator(0);
+        assert(is_eq(get_next(&g), 0, 0));
     }{
-        SumNumbersArray out = consecutive_sums(2);
-        assert(out.size == 0);
-        free(out.a);
+        generator_t g = create_sum_generator(2);
+        assert(is_eq(get_next(&g), 0, 0));
     }{
-        SumNumbersArray out = consecutive_sums(3);
-        assert(out.size == 1);
-        assert(is_eq(out.a[0], 1, 2));
-        free(out.a);
+        generator_t g = create_sum_generator(3);
+        assert(is_eq(get_next(&g), 1, 2));
+        assert(is_eq(get_next(&g), 0, 0));
     }{
-        SumNumbersArray out = consecutive_sums(15);
-        assert(out.size == 3);
-        assert(is_eq(out.a[0], 7, 2));
-        assert(is_eq(out.a[1], 4, 3));
-        assert(is_eq(out.a[2], 1, 5));
-        free(out.a);
+        generator_t g = create_sum_generator(15);
+        assert(is_eq(get_next(&g), 7, 2));
+        assert(is_eq(get_next(&g), 4, 3));
+        assert(is_eq(get_next(&g), 1, 5));
+        assert(is_eq(get_next(&g), 0, 0));
     }{
-        SumNumbersArray out = consecutive_sums(21);
-        assert(out.size == 3);
-        assert(is_eq(out.a[0], 10, 2));
-        assert(is_eq(out.a[1], 6, 3));
-        assert(is_eq(out.a[2], 1, 6));
-        free(out.a);
+        generator_t g = create_sum_generator(21);
+        assert(is_eq(get_next(&g), 10, 2));
+        assert(is_eq(get_next(&g), 6, 3));
+        assert(is_eq(get_next(&g), 1, 6));
+        assert(is_eq(get_next(&g), 0, 0));
     }
 }
