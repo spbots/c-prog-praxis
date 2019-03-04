@@ -23,8 +23,8 @@ memcheck: tests.out
 clean:
 	rm -rf *.o *.out *.out.dSYM
 
-tests.out: lib/*.c lib/*.h test_main.c
-	@$(CC) $(CFLAGS) lib/*.c test_main.c -o tests.out
+tests.out: lib/*.c lib/*.h test/*.c test_main.c
+	@$(CC) $(CFLAGS) lib/*.c test/*.c test_main.c -o tests.out
 
 rpn_calc.out: lib/*.c lib/*.h rpn_main.c
 	@$(CC) $(CFLAGS) lib/*.c rpn_main.c -o rpn_calc.out

@@ -1,6 +1,8 @@
 #include "consecutive_sums.h"
 
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct consec_sum_generator {
     const int n;
@@ -9,8 +11,15 @@ struct consec_sum_generator {
 };
 typedef struct consec_sum_generator generator_t;
 
-generator_t create_sum_generator(const int n) {
-    return (generator_t){ n, n/2 + 1, 2 };
+generator_t* create_sum_generator(const int n) {
+    generator_t g = (generator_t){ n, n/2 + 1, 2 };
+    generator_t* pg = malloc(sizeof(generator_t));
+    memcpy(pg, &g, sizeof(generator_t));
+    return pg;
+}
+
+void destroy_sum_generator(struct consec_sum_generator* g) {
+    free(g);
 }
 
 sum_numbers_t get_next(generator_t* g) {
@@ -36,33 +45,4 @@ sum_numbers_t get_next(generator_t* g) {
     return (sum_numbers_t) {
         .sum_start = is_valid ? sum_start : 0,
         .consecutive_numbers =  is_valid ? k : 0 };
-}
-
-static int is_eq(const sum_numbers_t in, const int start, const int num) {
-    return in.sum_start == start && in.consecutive_numbers == num;
-}
-void consecutive_sums_test() {
-    {
-        generator_t g = create_sum_generator(0);
-        assert(is_eq(get_next(&g), 0, 0));
-    }{
-        generator_t g = create_sum_generator(2);
-        assert(is_eq(get_next(&g), 0, 0));
-    }{
-        generator_t g = create_sum_generator(3);
-        assert(is_eq(get_next(&g), 1, 2));
-        assert(is_eq(get_next(&g), 0, 0));
-    }{
-        generator_t g = create_sum_generator(15);
-        assert(is_eq(get_next(&g), 7, 2));
-        assert(is_eq(get_next(&g), 4, 3));
-        assert(is_eq(get_next(&g), 1, 5));
-        assert(is_eq(get_next(&g), 0, 0));
-    }{
-        generator_t g = create_sum_generator(21);
-        assert(is_eq(get_next(&g), 10, 2));
-        assert(is_eq(get_next(&g), 6, 3));
-        assert(is_eq(get_next(&g), 1, 6));
-        assert(is_eq(get_next(&g), 0, 0));
-    }
 }

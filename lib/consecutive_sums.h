@@ -56,7 +56,8 @@ typedef struct sum_numbers sum_numbers_t;
 // hidden impl:
 struct consec_sum_generator;
 
-struct consec_sum_generator create_sum_generator(const int n);
+struct consec_sum_generator* create_sum_generator(const int n);
+void destroy_sum_generator(struct consec_sum_generator* g);
 sum_numbers_t get_next(struct consec_sum_generator* g);
 
 void consecutive_sums_test();
