@@ -1,6 +1,7 @@
 #include "consecutive_sums.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,7 +13,16 @@ struct consec_sum_generator {
 typedef struct consec_sum_generator generator_t;
 
 generator_t* create_sum_generator(const int n) {
-    generator_t g = (generator_t){ n, n/2 + 1, 2 };
+    /*
+    The extreme case of k_max is a triangular number,
+    n = 1 + 2 + ... + k:
+    n = k * (k + 1) / 2;            // https://oeis.org/A000217
+    k^2 + k - 2n = 0;               // as quadratic
+    k = (-1 ± sqrt(1 + 8n)) / 2;
+    */
+    const int k_max = (int)ceil((-1.0 + sqrt(1 + 8 * n)) / 2.0);
+
+    generator_t g = (generator_t){ n, k_max, 2 };
     generator_t* pg = malloc(sizeof(generator_t));
     memcpy(pg, &g, sizeof(generator_t));
     return pg;
